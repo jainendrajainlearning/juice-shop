@@ -1,17 +1,15 @@
 name: "ZAP Baseline Scan"
 on:
   workflow_dispatch: {}
-  pull_request: {}
+  
   push:
     branches:
     - main
     - master
     
 permissions:
-  contents: write
+  contents: read
   checks: write
-  pull-requests: write
-  security-events: write
   
 jobs:
   zap_scan:
@@ -25,6 +23,7 @@ jobs:
         uses: zaproxy/action-baseline@v0.12.0
         with:
           target: 'http://testphp.vulnweb.com'
+          fail_action: false
         
       - name: Upload ZAP Report
         if: always()

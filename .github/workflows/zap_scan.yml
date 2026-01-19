@@ -11,17 +11,23 @@ on:
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
-    name: Scan Juice Shop preview instance on Heroku
+
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f #v2: v2.3.4 available
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.12.0
         with:
-          ref: develop
-      - name: ZAP Scan
-        uses: zaproxy/action-baseline@v0.3.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           target: 'https://preview.owasp-juice.shop'
           rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a -j'
+          cmd_options: '-a'
 
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-baseline-report
+          path: |
+            zap-report.html
+            zap-report.json
+ 

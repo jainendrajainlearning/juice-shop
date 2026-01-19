@@ -1,7 +1,12 @@
 name: Simple OWASP ZAP Scan (Logs Only)
 
-on: push
- # workflow_dispatch:
+on:
+  workflow_dispatch: {}
+  
+  push:
+    branches:
+    - main
+    - master
 
 permissions:
    contents: read

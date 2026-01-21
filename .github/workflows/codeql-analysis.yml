@@ -1,31 +1,100 @@
 name: "CodeQL Scan"
-
+ 
 on:
-  push:
-  pull_request:
 
+  push:
+
+  pull_request:
+ 
 jobs:
+
   analyze:
+
     name: Analyze
+
     runs-on: ubuntu-latest
+
     permissions:
+
       actions: read
+
       contents: read
+
       security-events: write
+
+      issues: read
+ 
     strategy:
+
       fail-fast: false
+
       matrix:
+
         language: [ 'javascript' ]
+ 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f #v2: v2.3.4 available
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-      with:
-        languages: ${{ matrix.language }}
-        queries: security-extended
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v1
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
-      
+
+      - name: Checkout repository
+
+        uses: actions/checkout@v4
+ 
+      - name: Initialize CodeQL
+
+        uses: github/codeql-action/init@v3
+
+        with:
+
+          languages: ${{ matrix.language }}
+
+          queries: security-extended
+ 
+      - name: Autobuild
+
+        uses: github/codeql-action/autobuild@v3
+ 
+      - name: Perform CodeQL Analysis
+
+        uses: github/codeql-action/analyze@v3
+ 
+      # 🔐 QUALITY GATE STEP
+
+      - name: Fail if Critical or High CodeQL alerts exist
+
+        uses: actions/github-script@v7
+
+        with:
+
+          script: |
+
+            const { data: alerts } = await github.rest.codeScanning.listAlertsForRepo({
+
+              owner: context.repo.owner,
+
+              repo: context.repo.repo,
+
+              state: "open",
+
+            });
+
+            const blocking = alerts.filter(alert =>
+
+              alert.rule.security_severity_level === "critical" ||
+
+              alert.rule.security_severity_level === "high"
+
+            );
+
+            if (blocking.length > 0) {
+
+              core.setFailed(
+
+                ` CodeQL Quality Gate failed: ${blocking.length} Critical/High issue(s) found`
+
+              );
+
+            } else {
+
+              console.log(" CodeQL Quality Gate passed (no Critical/High issues)");
+
+              }
+ 

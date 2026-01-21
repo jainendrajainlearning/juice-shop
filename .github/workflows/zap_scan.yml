@@ -40,6 +40,7 @@ jobs:
           target: ${{ github.event.inputs.target || 'http://testphp.vulnweb.com/' }}
           rules_file_name: ${{ github.event.inputs.rules_file_name || '.zap/rules.tsv' }}
           cmd_options: ${{ github.event.inputs.aggressive == 'true' && '-a' || '' }}
+          
 
 
 
